@@ -1,6 +1,7 @@
 ﻿using CollegeApp.DTO;
 using CollegeApp.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CollegeApp.Controllers
@@ -151,6 +152,71 @@ namespace CollegeApp.Controllers
 
             return NoContent();
         
+        }
+
+
+        [HttpPatch]
+        [Route("{id:int}/UpdatePartial")]
+        //api/student/1/updatepartial
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public ActionResult UpdateStudentPartial(int id, [FromBody] JsonPatchDocument<StudentDto> patchDocument)
+        {
+            if (patchDocument == null || id <= 0)
+                BadRequest();
+
+            var existingStudent = CollegeRepository.Students.Where(s => s.Id == id).FirstOrDefault();
+
+            if (existingStudent == null)
+                return NotFound();
+
+            var studentDTO = new StudentDto
+            {
+                Id = existingStudent.Id,
+                StudentName = existingStudent.StudentName,
+                Email = existingStudent.Email,
+                Address = existingStudent.Address
+            };
+
+            //patchDocument.ApplyTo(studentDTO, ModelState);
+
+            patchDocument.ApplyTo(studentDTO);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            existingStudent.StudentName = studentDTO.StudentName;
+            existingStudent.Email = studentDTO.Email;
+            existingStudent.Address = studentDTO.Address;
+
+            //204 - NoContent
+            return NoContent();
+        }
+
+
+        [HttpDelete("Delete/{id}", Name = "DeleteStudentById")]
+        //api/student/delete/1
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public ActionResult<bool> DeleteStudent(int id)
+        {
+            //BadRequest - 400 - Badrequest - Client error
+            if (id <= 0)
+                return BadRequest();
+
+            var student = CollegeRepository.Students.Where(n => n.Id == id).FirstOrDefault();
+            //NotFound - 404 - NotFound - Client error
+            if (student == null)
+                return NotFound($"The student with id {id} not found");
+
+            CollegeRepository.Students.Remove(student);
+
+            //OK - 200 - Success
+            return Ok(true);
         }
 
     }
