@@ -8,13 +8,21 @@ namespace CollegeApp.Controllers
     [ApiController]
     public class DemoController : ControllerBase
     {
-        //strongly typed Dependency Injection
+        
         private readonly IMyLogger _logger;
 
-        public DemoController()
-        {
-            _logger = new LogToDB();
 
+        ////strongly typed Dependency Injection
+        //public DemoController()
+        //{
+        //    _logger = new LogToDB();
+
+        //}
+
+        //Lossly coupled typed Dependency Injection
+        public DemoController(IMyLogger myLogger)
+        {
+            _logger = myLogger;
         }
 
         [HttpGet]

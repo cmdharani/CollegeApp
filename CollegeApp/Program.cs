@@ -1,3 +1,4 @@
+using CollegeApp.MyLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
@@ -9,6 +10,9 @@ builder.Services.AddControllers(options => options.ReturnHttpNotAcceptable = tru
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddScoped<IMyLogger,LogToFile>();
 
 var app = builder.Build();
 
