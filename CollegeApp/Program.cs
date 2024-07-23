@@ -1,15 +1,33 @@
 using CollegeApp.MyLogging;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using Serilog;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File("Logs/log.text", rollingInterval: RollingInterval.Minute)
+    .CreateLogger();
+
+
+//builder.Host.UseSerilog();  // this will add only the serilog
+
+builder.Logging.AddSerilog();  // this will enable both built in Logger and Serilog
+
 #region Clearing the default Logging Provider and add only the required one. By default we have 4 Providers
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
+
+//COMMENTING TO CHECK the SERILOG options
+
+//builder.Logging.ClearProviders();
+//builder.Logging.AddConsole();
+//builder.Logging.AddDebug();
+
+
 #endregion
+
+
 
 
 
