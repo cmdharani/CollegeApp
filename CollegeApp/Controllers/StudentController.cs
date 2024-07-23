@@ -11,6 +11,17 @@ namespace CollegeApp.Controllers
     [ApiController]
     public class StudentController : ControllerBase
     {
+
+
+
+        private readonly ILogger<StudentController> _logger;
+
+        public StudentController(ILogger<StudentController> logger)
+        {
+            _logger = logger;
+        }
+
+
         [HttpGet]
         [Route("All")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -18,7 +29,7 @@ namespace CollegeApp.Controllers
         public IEnumerable<StudentDto> GetAllStudents()
         {
 
-
+            _logger.LogInformation("Get All student getting executed");
             var result = CollegeRepository.Students.Select(x => new StudentDto
             {
 
@@ -43,14 +54,22 @@ namespace CollegeApp.Controllers
         public ActionResult<StudentDto> GetStudentsById(int id)
         {
             if (id <= 0)
+            {
+                _logger.LogWarning("Bad Request");
                 return BadRequest();
+            }
+               
 
             var result = CollegeRepository.Students.FirstOrDefault(x => x.Id == id);
 
 
 
             if (result == null)
+            {
+                _logger.LogError("Student ID not Found");
                 return NotFound($"student with the id {id} not found");
+            }
+                
 
 
             var student = new StudentDto
