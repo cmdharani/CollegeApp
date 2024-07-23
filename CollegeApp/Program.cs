@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 #region Clearing the default Logging Provider and add only the required one. By default we have 4 Providers
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-//builder.Logging.AddDebug();
+builder.Logging.AddDebug();
 #endregion
 
 
