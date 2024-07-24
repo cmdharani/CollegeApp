@@ -1,4 +1,5 @@
-﻿using CollegeApp.DTO;
+﻿using CollegeApp.Data;
+using CollegeApp.DTO;
 using CollegeApp.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +15,12 @@ namespace CollegeApp.Controllers
 
 
         private readonly ILogger<StudentController> _logger;
+        private readonly CollegeDBContext _dbContext;
 
-        public StudentController(ILogger<StudentController> logger)
+        public StudentController(ILogger<StudentController> logger, CollegeDBContext dbContext)
         {
             _logger = logger;
+            _dbContext = dbContext;
         }
 
 
@@ -29,15 +32,14 @@ namespace CollegeApp.Controllers
         {
 
             _logger.LogInformation("Get All student getting executed");
-            var result = CollegeRepository.Students.Select(x => new StudentDto
+            var result = _dbContext.Students.Select(x => new StudentDto
             {
 
                 Address = x.Address,
                 Email = x.Email,
                 Id = x.Id,
                 StudentName = x.StudentName,
-                AdmissionDate = x.AdmissionDate
-
+                DOB=x.DOB
 
             });
 
@@ -59,7 +61,7 @@ namespace CollegeApp.Controllers
             }
                
 
-            var result = CollegeRepository.Students.FirstOrDefault(x => x.Id == id);
+            var result = _dbContext.Students.FirstOrDefault(x => x.Id == id);
 
 
 
@@ -76,8 +78,8 @@ namespace CollegeApp.Controllers
                 Id = result.Id,
                 StudentName = result.StudentName,
                 Email = result.Email,
-                Address = result.Address,
-                AdmissionDate = result.AdmissionDate
+                Address = result.Address
+                
             };
 
             return student;
@@ -93,7 +95,7 @@ namespace CollegeApp.Controllers
             if (string.IsNullOrEmpty(name))
                 return BadRequest();
 
-            var result = CollegeRepository.Students.FirstOrDefault(x => x.StudentName == name);
+            var result = _dbContext.Students.FirstOrDefault(x => x.StudentName == name);
 
             if (result == null)
                 return NotFound($"student with the id {name} not found");
@@ -113,7 +115,7 @@ namespace CollegeApp.Controllers
             if (model == null)
                 return BadRequest();
 
-            int newId = CollegeRepository.Students.LastOrDefault().Id + 1;
+            
 
             //Directly adding error message
 
@@ -128,17 +130,17 @@ namespace CollegeApp.Controllers
 
             var newStudent = new Student
             {
-                Id = newId,
+                
                 Address = model.Address,
                 Email = model.Email,
                 StudentName = model.StudentName,
-                AdmissionDate=model.AdmissionDate,
+                DOB = model.DOB
             };
 
-            model.Id = newStudent.Id;
+            
 
-            CollegeRepository.Students.Add(newStudent);
-
+            _dbContext.Students.Add(newStudent);
+            _dbContext.SaveChanges();
 
             //status code will be 201
             //return CreatedAtRoute("GetStudentById", new { model.Id },model);
@@ -158,15 +160,17 @@ namespace CollegeApp.Controllers
             if (model == null || model.Id<0) 
                 return BadRequest();
 
-            var existingStudent= CollegeRepository.Students.FirstOrDefault(x => x.Id == model.Id);
+            var existingStudent=  _dbContext.Students.FirstOrDefault(x => x.Id == model.Id);
 
             if (existingStudent == null)
                    return NotFound();
 
             existingStudent.StudentName = model.StudentName;
-            existingStudent.AdmissionDate = model.AdmissionDate;
-            existingStudent.Age = model.Age;
+            existingStudent.DOB = model.DOB;
             existingStudent.Email = model.Email;
+
+            _dbContext.Students.Update(existingStudent);
+            _dbContext.SaveChanges();
 
             return NoContent();
         
@@ -185,7 +189,7 @@ namespace CollegeApp.Controllers
             if (patchDocument == null || id <= 0)
                 BadRequest();
 
-            var existingStudent = CollegeRepository.Students.Where(s => s.Id == id).FirstOrDefault();
+            var existingStudent = _dbContext.Students.Where(s => s.Id == id).FirstOrDefault();
 
             if (existingStudent == null)
                 return NotFound();
@@ -226,12 +230,13 @@ namespace CollegeApp.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var student = CollegeRepository.Students.Where(n => n.Id == id).FirstOrDefault();
+            var student = _dbContext.Students.Where(n => n.Id == id).FirstOrDefault();
             //NotFound - 404 - NotFound - Client error
             if (student == null)
                 return NotFound($"The student with id {id} not found");
 
-            CollegeRepository.Students.Remove(student);
+            _dbContext.Students.Remove(student);
+            _dbContext.SaveChanges();
 
             //OK - 200 - Success
             return Ok(true);

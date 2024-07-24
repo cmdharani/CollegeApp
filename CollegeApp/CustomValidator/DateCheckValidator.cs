@@ -8,9 +8,9 @@ namespace CollegeApp.CustomValidator
         {
             var datetime=(DateTime?)value;
 
-            if (datetime.HasValue && datetime < DateTime.Now)
+            if (datetime.HasValue && datetime >= DateTime.Now)
             {
-                return new ValidationResult("date should be greater than todays date");
+                return new ValidationResult("DOB should be Lesser than todays date");
                 
             }
 
