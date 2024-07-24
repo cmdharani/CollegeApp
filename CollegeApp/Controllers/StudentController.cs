@@ -3,6 +3,7 @@ using CollegeApp.DTO;
 using CollegeApp.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CollegeApp.Controllers
 {
@@ -28,11 +29,11 @@ namespace CollegeApp.Controllers
         [Route("All")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IEnumerable<StudentDto> GetAllStudents()
+        public async Task<IEnumerable<StudentDto>> GetAllStudents()
         {
 
             _logger.LogInformation("Get All student getting executed");
-            var result = _dbContext.Students.Select(x => new StudentDto
+            var result = await _dbContext.Students.Select(x => new StudentDto
             {
 
                 Address = x.Address,
@@ -41,7 +42,7 @@ namespace CollegeApp.Controllers
                 StudentName = x.StudentName,
                 DOB=x.DOB
 
-            });
+            }).ToListAsync();
 
 
             return result;
@@ -52,7 +53,7 @@ namespace CollegeApp.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<StudentDto> GetStudentsById(int id)
+        public async Task<ActionResult<StudentDto>> GetStudentsById(int id)
         {
             if (id <= 0)
             {
@@ -61,7 +62,7 @@ namespace CollegeApp.Controllers
             }
                
 
-            var result = _dbContext.Students.FirstOrDefault(x => x.Id == id);
+            var result = await _dbContext.Students.FirstOrDefaultAsync(x => x.Id == id);
 
 
 
@@ -90,12 +91,12 @@ namespace CollegeApp.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<Student> GetStudentByName(string name)
+        public async Task< ActionResult<Student>> GetStudentByName(string name)
         {
             if (string.IsNullOrEmpty(name))
                 return BadRequest();
 
-            var result = _dbContext.Students.FirstOrDefault(x => x.StudentName == name);
+            var result = await _dbContext.Students.FirstOrDefaultAsync(x => x.StudentName == name);
 
             if (result == null)
                 return NotFound($"student with the id {name} not found");
@@ -110,7 +111,7 @@ namespace CollegeApp.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public ActionResult<StudentDto> CreateStudent([FromBody] StudentDto model)
+        public async Task<ActionResult<StudentDto>> CreateStudent([FromBody] StudentDto model)
         {
             if (model == null)
                 return BadRequest();
@@ -140,7 +141,9 @@ namespace CollegeApp.Controllers
             
 
             _dbContext.Students.Add(newStudent);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+
+            model.Id=newStudent.Id;
 
             //status code will be 201
             //return CreatedAtRoute("GetStudentById", new { model.Id },model);
