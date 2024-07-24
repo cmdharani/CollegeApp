@@ -1,4 +1,5 @@
-﻿using CollegeApp.Data;
+﻿using AutoMapper;
+using CollegeApp.Data;
 using CollegeApp.DTO;
 using CollegeApp.Models;
 using Microsoft.AspNetCore.JsonPatch;
@@ -17,11 +18,13 @@ namespace CollegeApp.Controllers
 
         private readonly ILogger<StudentController> _logger;
         private readonly CollegeDBContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public StudentController(ILogger<StudentController> logger, CollegeDBContext dbContext)
+        public StudentController(ILogger<StudentController> logger, CollegeDBContext dbContext, IMapper mapper)
         {
             _logger = logger;
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
 
@@ -29,23 +32,27 @@ namespace CollegeApp.Controllers
         [Route("All")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IEnumerable<StudentDto>> GetAllStudents()
+        public async Task<ActionResult<IEnumerable<StudentDto>>> GetAllStudents()
         {
 
             _logger.LogInformation("Get All student getting executed");
-            var result = await _dbContext.Students.Select(x => new StudentDto
-            {
+            //var result = await _dbContext.Students.Select(x => new StudentDto
+            //{
 
-                Address = x.Address,
-                Email = x.Email,
-                Id = x.Id,
-                StudentName = x.StudentName,
-                DOB=x.DOB
+            //    Address = x.Address,
+            //    Email = x.Email,
+            //    Id = x.Id,
+            //    StudentName = x.StudentName,
+            //    DOB=x.DOB
 
-            }).ToListAsync();
+            //}).ToListAsync();
 
 
-            return result;
+            var result = await _dbContext.Students.ToListAsync();
+            var studentDtoData=_mapper.Map<List<StudentDto>>(result);
+
+
+            return Ok(studentDtoData);
         }
 
         [HttpGet("{id:int}", Name = "GetStudentById")]
@@ -74,14 +81,16 @@ namespace CollegeApp.Controllers
                 
 
 
-            var student = new StudentDto
-            {
-                Id = result.Id,
-                StudentName = result.StudentName,
-                Email = result.Email,
-                Address = result.Address
+            //var student = new StudentDto
+            //{
+            //    Id = result.Id,
+            //    StudentName = result.StudentName,
+            //    Email = result.Email,
+            //    Address = result.Address
                 
-            };
+            //};
+
+            var student=_mapper.Map<StudentDto>(result);
 
             return student;
         }
@@ -129,16 +138,16 @@ namespace CollegeApp.Controllers
 
             //using custom attribute
 
-            var newStudent = new Student
-            {
+            //var newStudent = new Student
+            //{
                 
-                Address = model.Address,
-                Email = model.Email,
-                StudentName = model.StudentName,
-                DOB = model.DOB
-            };
+            //    Address = model.Address,
+            //    Email = model.Email,
+            //    StudentName = model.StudentName,
+            //    DOB = model.DOB
+            //};
 
-            
+            var newStudent=_mapper.Map<Student>(model);
 
             _dbContext.Students.Add(newStudent);
             await _dbContext.SaveChangesAsync();
@@ -163,16 +172,19 @@ namespace CollegeApp.Controllers
             if (model == null || model.Id<0) 
                 return BadRequest();
 
-            var existingStudent=  _dbContext.Students.FirstOrDefault(x => x.Id == model.Id);
+            var existingStudent=  _dbContext.Students.AsNoTracking().FirstOrDefault(x => x.Id == model.Id);
 
             if (existingStudent == null)
                    return NotFound();
 
-            existingStudent.StudentName = model.StudentName;
-            existingStudent.DOB = model.DOB;
-            existingStudent.Email = model.Email;
+            //existingStudent.StudentName = model.StudentName;
+            //existingStudent.DOB = model.DOB;
+            //existingStudent.Email = model.Email;
 
-            _dbContext.Students.Update(existingStudent);
+            var newRecordForSameID=_mapper.Map<Student>(model);
+
+
+            _dbContext.Students.Update(newRecordForSameID);
             _dbContext.SaveChanges();
 
             return NoContent();

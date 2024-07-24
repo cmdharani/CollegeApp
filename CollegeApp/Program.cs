@@ -1,3 +1,4 @@
+using CollegeApp.Configuration;
 using CollegeApp.Data;
 using CollegeApp.MyLogging;
 using Microsoft.EntityFrameworkCore;
@@ -59,6 +60,9 @@ builder.Services.AddSwaggerGen();
 
 
 builder.Services.AddScoped<IMyLogger,LogToFile>();
+
+
+builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 
 var app = builder.Build();
 
