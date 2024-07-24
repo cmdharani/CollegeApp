@@ -1,4 +1,6 @@
+using CollegeApp.Data;
 using CollegeApp.MyLogging;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 
@@ -28,6 +30,13 @@ builder.Logging.AddSerilog();  // this will enable both built in Logger and Seri
 #endregion
 
 
+
+
+builder.Services.AddDbContext<CollegeDBContext>(x =>
+
+x.UseSqlServer(builder.Configuration.GetConnectionString("CollegeAppDBConnection"))
+
+) ;
 
 
 
