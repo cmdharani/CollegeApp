@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .WriteTo.File("Logs/log.text", rollingInterval: RollingInterval.Minute)
+    .WriteTo.File("Logs/log.text", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 
