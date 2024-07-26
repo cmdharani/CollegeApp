@@ -44,7 +44,7 @@ x.UseSqlServer(builder.Configuration.GetConnectionString("CollegeAppDBConnection
 
 // Add services to the container.
 
-builder.Services.AddScoped<IStudentyRepository,StudentRepository>();
+builder.Services.AddScoped<IStudentRepository,StudentRepository>();
 builder.Services.AddScoped(typeof(ICollegeRepository<>),typeof(CollegeRepository<>));
 
 

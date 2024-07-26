@@ -19,10 +19,11 @@ namespace CollegeApp.Controllers
 
         private readonly ILogger<StudentController> _logger;
         private readonly IMapper _mapper;
-        private readonly ICollegeRepository<Student> _studentRepository;
+        //private readonly ICollegeRepository<Student> _studentRepository;  //since IStudentRepository is inheriting from ICollegeRepository, hence commeting this line
+        private readonly IStudentRepository _studentRepository;
 
 
-        public StudentController(ILogger<StudentController> logger, IMapper mapper, ICollegeRepository<Student> studentyRepository)
+        public StudentController(ILogger<StudentController> logger, IMapper mapper, IStudentRepository studentyRepository)
         {
             _logger = logger;
             _studentRepository = studentyRepository;
@@ -71,7 +72,7 @@ namespace CollegeApp.Controllers
             }
                
 
-            var result = await _studentRepository.GetByIdAsync(student=>student.Id==id);
+            var result = await _studentRepository.GetAsync(student=>student.Id==id);
 
 
 
@@ -107,7 +108,7 @@ namespace CollegeApp.Controllers
             if (string.IsNullOrEmpty(name))
                 return BadRequest();
 
-            var result = await _studentRepository.GetByNameAsync(student=> student.StudentName==name);
+            var result = await _studentRepository.GetAsync(student=> student.StudentName==name);
 
             if (result == null)
                 return NotFound($"student with the id {name} not found");
@@ -174,7 +175,7 @@ namespace CollegeApp.Controllers
             if (model == null || model.Id<0) 
                 return BadRequest();
 
-            var existingStudent = await _studentRepository.GetByIdAsync(student=>student.Id == model.Id, true);
+            var existingStudent = await _studentRepository.GetAsync(student=>student.Id == model.Id, true);
 
             if (existingStudent == null)
                    return NotFound();
@@ -246,7 +247,7 @@ namespace CollegeApp.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var student = await _studentRepository.GetByIdAsync(student => student.Id == id );
+            var student = await _studentRepository.GetAsync(student => student.Id == id );
             //NotFound - 404 - NotFound - Client error
             if (student == null)
                 return NotFound($"The student with id {id} not found");
