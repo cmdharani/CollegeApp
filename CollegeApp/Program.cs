@@ -1,5 +1,6 @@
 using CollegeApp.Configuration;
 using CollegeApp.Data;
+using CollegeApp.Data.Repository;
 using CollegeApp.MyLogging;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -42,6 +43,8 @@ x.UseSqlServer(builder.Configuration.GetConnectionString("CollegeAppDBConnection
 
 
 // Add services to the container.
+
+builder.Services.AddScoped<IStudentyRepository,StudentRepository>();
 
 
 
