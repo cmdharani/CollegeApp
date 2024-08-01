@@ -3,6 +3,7 @@ using CollegeApp.Data;
 using CollegeApp.Data.Repository;
 using CollegeApp.DTO;
 using CollegeApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace CollegeApp.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StudentController : ControllerBase
     {
 
