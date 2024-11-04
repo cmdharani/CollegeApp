@@ -21,7 +21,7 @@ namespace CollegeApp.Controllers
             _configuration = configuration;
         }
 
-
+        [HttpPost]
         public ActionResult Login(LoginDto model)
         {
             if (!ModelState.IsValid)
